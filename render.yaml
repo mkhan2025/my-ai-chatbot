@@ -9,6 +9,6 @@ services:
       - key: OPENROUTER_API_KEY
         sync: false
       - key: OPENROUTER_MODEL
-        value: google/gemini-2.0-flash-lite-001
+        value: google/gemini-2.5-flash-lite
       - key: PYTHON_VERSION
         value: 3.11.0
