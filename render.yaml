@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: my-ai-chatbot-backend
+    env: python
+    plan: free
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: google/gemini-2.0-flash-lite-001
+      - key: PYTHON_VERSION
+        value: 3.11.0
