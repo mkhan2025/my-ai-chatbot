@@ -77,3 +77,14 @@ class LLMService:
                 yield f"\n\nAPI error: HTTP {status_code}"
             except Exception as e:
                 yield f"\n\nUnexpected error: {str(e)}"
+
+    async def complete_chat(
+        self,
+        system_prompt: str,
+        conversation: list[dict[str, str]],
+    ) -> str:
+        """Non-streaming chat — collects full response (used by Tab Analyzer)."""
+        parts: list[str] = []
+        async for token in self.stream_chat(system_prompt, conversation):
+            parts.append(token)
+        return "".join(parts)

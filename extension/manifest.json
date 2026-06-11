@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Therapist",
+  "version": "0.1.0",
+  "description": "AI-powered tab overload recovery. Analyzes your open tabs and tells you what to read, save, or close.",
+  "permissions": ["tabs"],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "https://my-ai-chatbot-3jv4.onrender.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Tab Therapist"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

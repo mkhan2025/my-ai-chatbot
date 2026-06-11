@@ -1,0 +1,2 @@
+# TODO: Add icon16.png, icon48.png, icon128.png
+# Quick fix: use any 16x16, 48x48, 128x128 PNGs or remove "icons" from manifest.json for local dev

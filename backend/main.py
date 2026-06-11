@@ -5,9 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 from config import settings
-from schemas import ChatRequest
+from schemas import AnalyzeTabsRequest, ChatRequest
 from services.llm import LLMService
+from services.tab_analyzer import TabAnalyzer
 from data.system_prompt import SYSTEM_PROMPT
+from data.tab_therapist_prompt import TAB_THERAPIST_PROMPT
 
 llm_service = None
 
@@ -19,7 +21,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="my-ai-chatbot", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="tab-therapist", version="0.2.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,6 +47,15 @@ async def chat(request: ChatRequest):
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+@app.post("/analyze-tabs")
+async def analyze_tabs(request: AnalyzeTabsRequest):
+    """Analyze open browser tabs — called by the Chrome extension."""
+    analyzer = TabAnalyzer(llm_service)
+    tabs = [tab.model_dump() for tab in request.tabs]
+    analysis = await analyzer.analyze(tabs, TAB_THERAPIST_PROMPT)
+    return {"analysis": analysis, "tab_count": len(tabs)}
 
 
 @app.get("/health")
