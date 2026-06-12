@@ -1,89 +1,98 @@
-# my-ai-chatbot
+# Tab Therapist
 
-AI Chatbot powered by OpenRouter
+A Chrome extension for people who open too many tabs and feel bad about it.
 
-## Quick Start
+You click one button. It reads your open tabs, sends them to a small FastAPI backend, and gets back a structured triage: what to read now, what's safe to close, and which tabs are just procrastination dressed up as research. You can close tabs in bulk from the popup, or save the whole session and restore it later in one window.
+
+Most tab managers organize bookmarks. This one tries to understand *why* you have 40 tabs open.
+
+## What it does
+
+- **Analyze** — AI sorts your tabs into read now / save for later / close guilt-free / anxiety
+- **Tab shame score** — 1–10, with a short explanation
+- **Domain breakdown** — see where your tabs actually live (github.com × 12, etc.)
+- **Batch close** — checkboxes on close-worthy tabs, one confirm, done
+- **Time Capsules** — save all open tabs locally, restore them later in a single window
+
+## Stack
+
+- Chrome Extension (Manifest V3, vanilla JS)
+- Python / FastAPI
+- OpenRouter (Gemini 2.5 Flash Lite)
+- Hosted on Render
+
+## Project structure
+
+```
+tab-therapist/
+├── extension/          Chrome extension (the actual product)
+├── backend/            FastAPI API + OpenRouter integration
+└── frontend/           Original scaffold chat UI (optional, not required)
+```
+
+## Local setup
 
 ### Backend
 
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env and add your API key
+# Add your OPENROUTER_API_KEY to .env
+
 pip install -r requirements.txt
-python -m uvicorn main:app --reload
+python3 -m uvicorn main:app --reload
 ```
 
-### Frontend
+API runs at `http://localhost:8000`. Check `http://localhost:8000/health`.
 
-```bash
-cd frontend
-npm install
-npm run dev
+### Extension
+
+1. Set `extension/config.js`:
+   ```js
+   const CONFIG = {
+     API_URL: "http://localhost:8000",
+   };
+   ```
+2. Open `chrome://extensions`
+3. Enable **Developer mode**
+4. **Load unpacked** → select the `extension/` folder
+5. Open a bunch of tabs, click the extension icon, hit **Analyze my tabs**
+
+## Deploy backend (Render)
+
+1. Push this repo to GitHub
+2. Create a Web Service on [Render](https://render.com)
+3. Build command: `cd backend && pip install -r requirements.txt`
+4. Start command: `cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT`
+5. Add environment variables:
+   - `OPENROUTER_API_KEY`
+   - `OPENROUTER_MODEL` = `google/gemini-2.5-flash-lite`
+6. Point `extension/config.js` at your Render URL and reload the extension
+
+## Environment variables
+
+| `OPENROUTER_API_KEY` | `backend/.env` or Render | API key from [openrouter.ai/keys](https://openrouter.ai/keys) |
+| `OPENROUTER_MODEL` | `backend/.env` or Render | Model slug (default: `google/gemini-2.5-flash-lite`) |
+| `API_URL` | `extension/config.js` | Backend URL the extension calls |
+
+Never commit `.env`. Never put API keys in `config.py`.
+
+## API
+
+`POST /analyze-tabs`
+
+```json
+{
+  "tabs": [
+    { "title": "GitHub", "url": "https://github.com", "id": 123 }
+  ]
+}
 ```
 
-## Deploy
+Returns structured analysis with `shame_score`, categorized tab lists, and `domain_breakdown`.
 
-### Backend — Render
+## Why this exists
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/YOUR_USERNAME/my-ai-chatbot)
+I kept ending up with 30+ tabs across three windows, telling myself I'd "get back to them." Closing felt risky. Bookmarking everything felt like giving up. Tab Therapist is the thing I wanted: something that looks at the mess, tells me what's actually worth keeping, and lets me close the rest without guilt.
 
-Create a new Web Service, set the build command to `cd backend && pip install -r requirements.txt` and start command to `cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT`.
-
-### Frontend — Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/my-ai-chatbot)
-
-Set the root directory to `frontend` and add environment variable `VITE_API_URL` pointing to your backend URL.
-
-## Environment Variables
-
-| Variable | Description |
-|---|---|
-| `OPENROUTER_API_KEY` | Get your free key at https://openrouter.ai/keys |
-| `OPENROUTER_MODEL` | Model to use (default: `google/gemini-2.0-flash-lite-001`) |
-| `VITE_API_URL` | Backend URL (default: `http://localhost:8000`) |
-
-## Project Structure
-
-```
-my-ai-chatbot/
-├── backend/
-│   ├── main.py          # FastAPI app with /chat and /health endpoints
-│   ├── config.py        # Settings via pydantic-settings
-│   ├── schemas.py       # Pydantic request/response models
-│   ├── services/
-│   │   └── llm.py       # LLM service with streaming support
-│   ├── data/
-│   │   └── system_prompt.py  # Customize your system prompt here
-│   ├── requirements.txt
-│   └── .env.example
-├── frontend/
-│   ├── src/
-│   │   ├── App.tsx
-│   │   ├── components/
-│   │   │   └── Chat.tsx
-│   │   └── lib/
-│   │       └── api.ts
-│   ├── package.json
-│   └── vite.config.ts
-└── README.md
-```
-
-## Customization
-
-### Change the System Prompt
-
-Edit `backend/data/system_prompt.py` to define your chatbot's personality and capabilities.
-
-### Add Tools
-
-Edit `backend/main.py` to add function-calling tools. See the [OpenRouter docs](https://openrouter.ai/docs) for the tool calling format.
-
-### Change the Theme
-
-Edit `frontend/tailwind.config.js` to customize colors, fonts, and styling.
-
-## License
-
-MIT
+The session save feature came from the same place — sometimes you need to shut the laptop, not lose the research rabbit hole.
