@@ -1,5 +1,3 @@
-# Schemas — my-ai-chatbot
-
 from pydantic import BaseModel
 
 
@@ -8,14 +6,37 @@ class ChatRequest(BaseModel):
 
 
 class TabInfo(BaseModel):
-    """A single browser tab sent from the Chrome extension."""
-
     title: str
     url: str
-    id: int | None = None  # Chrome tab ID — used later for batch close
+    id: int | None = None
 
 
 class AnalyzeTabsRequest(BaseModel):
-    """Request body for POST /analyze-tabs."""
-
     tabs: list[TabInfo]
+
+
+class TabRecommendation(BaseModel):
+    title: str
+    url: str
+    reason: str
+
+
+class DomainCount(BaseModel):
+    domain: str
+    count: int
+
+
+class TabAnalysis(BaseModel):
+    shame_score: int
+    shame_reason: str
+    read_now: list[TabRecommendation]
+    save_for_later: list[TabRecommendation]
+    close_guilt_free: list[TabRecommendation]
+    anxiety_tabs: list[TabRecommendation]
+    next_action: str
+
+
+class AnalyzeTabsResponse(BaseModel):
+    tab_count: int
+    domain_breakdown: list[DomainCount]
+    analysis: TabAnalysis

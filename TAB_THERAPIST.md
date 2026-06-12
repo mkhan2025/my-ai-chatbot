@@ -2,6 +2,14 @@
 
 Chrome extension + FastAPI backend that analyzes tab overload using AI.
 
+## v0.2 Features
+
+- **Structured JSON** analysis (shame score, categorized tabs)
+- **Domain breakdown** bar chart (computed server-side)
+- **Close guilt-free** — checkboxes + batch close
+- **Close anxiety tabs** — separate batch close
+- **Time Capsules** — save/restore tab sessions via `chrome.storage.local`
+
 ---
 
 ## What you have now (project structure in simple terms)

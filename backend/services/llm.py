@@ -1,5 +1,3 @@
-# LLM Service — my-ai-chatbot
-
 import json
 from typing import AsyncGenerator
 import httpx
@@ -8,11 +6,6 @@ from config import settings
 
 
 class LLMService:
-    """
-    LLM service via OpenRouter (OpenAI-compatible API).
-    Supports streaming responses.
-    """
-
     def __init__(self):
         self.api_key = settings.openrouter_api_key
         self.base_url = settings.openrouter_base_url
@@ -83,7 +76,6 @@ class LLMService:
         system_prompt: str,
         conversation: list[dict[str, str]],
     ) -> str:
-        """Non-streaming chat — collects full response (used by Tab Analyzer)."""
         parts: list[str] = []
         async for token in self.stream_chat(system_prompt, conversation):
             parts.append(token)

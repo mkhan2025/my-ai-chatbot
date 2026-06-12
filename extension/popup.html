@@ -12,16 +12,31 @@
     <p id="tab-count" class="subtitle">—</p>
   </header>
 
-  <button id="analyze-btn" class="primary-btn">Analyze my tabs</button>
+  <div class="actions">
+    <button id="analyze-btn" class="primary-btn">Analyze my tabs</button>
+    <button id="save-session-btn" class="secondary-btn">Save session</button>
+  </div>
 
   <div id="loading" class="hidden">Analyzing your tab chaos...</div>
   <div id="error" class="hidden error"></div>
-  <div id="results" class="results hidden"></div>
 
-  <!-- TODO: add "Close guilt-free tabs" button after parsing analysis -->
+  <div id="results" class="results hidden">
+    <div id="shame-score" class="shame-score"></div>
+    <div id="domain-breakdown" class="section"></div>
+    <div id="read-now" class="section"></div>
+    <div id="close-section" class="section"></div>
+    <div id="anxiety-section" class="section"></div>
+    <div id="next-action" class="next-action"></div>
+  </div>
+
+  <div id="sessions-panel" class="sessions-panel">
+    <h2 class="section-title">Time Capsules</h2>
+    <div id="sessions-list" class="sessions-list"></div>
+  </div>
 
   <script src="config.js"></script>
   <script src="api.js"></script>
+  <script src="sessions.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

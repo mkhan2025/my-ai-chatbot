@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 from config import settings
-from schemas import AnalyzeTabsRequest, ChatRequest
+from schemas import AnalyzeTabsRequest, AnalyzeTabsResponse, ChatRequest
 from services.llm import LLMService
 from services.tab_analyzer import TabAnalyzer
 from data.system_prompt import SYSTEM_PROMPT
@@ -49,13 +49,16 @@ async def chat(request: ChatRequest):
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
-@app.post("/analyze-tabs")
+@app.post("/analyze-tabs", response_model=AnalyzeTabsResponse)
 async def analyze_tabs(request: AnalyzeTabsRequest):
-    """Analyze open browser tabs — called by the Chrome extension."""
     analyzer = TabAnalyzer(llm_service)
     tabs = [tab.model_dump() for tab in request.tabs]
-    analysis = await analyzer.analyze(tabs, TAB_THERAPIST_PROMPT)
-    return {"analysis": analysis, "tab_count": len(tabs)}
+    analysis, domain_breakdown = await analyzer.analyze(tabs, TAB_THERAPIST_PROMPT)
+    return AnalyzeTabsResponse(
+        tab_count=len(tabs),
+        domain_breakdown=domain_breakdown,
+        analysis=analysis,
+    )
 
 
 @app.get("/health")
